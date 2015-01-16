@@ -1,27 +1,7 @@
 //=============================================================================
 //
 //
-// Gertboard Demo
-//
-// This code is part of the Gertboard test suite
-// Pulse-Width-Modulation part
-//
-// Copyright (C) Gert Jan van Loo & Myra VanIwengen2012
-// No rights reserved
-// You may treat this program as if it was in the public domain
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAGE.
-//
+// PWM driver
 //
 // Try to strike a balance between keep code simple for
 // novice programmers but still have reasonable quality code
@@ -62,7 +42,7 @@
 //   =============================================== (B is always low)
 // The motor is driven (gets power) when A is high, so a PWM signal with
 // A high for most of the time will make the motor go fast, and a PWM
-// signal with A low for most for the time will make the mnotor turn
+// signal with A low for most for the time will make the motor turn
 // slowly.
 //
 //
