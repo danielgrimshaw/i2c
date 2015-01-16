@@ -1,0 +1,8 @@
+Gertboard test/example software
+
+Type "make all" to compile all the examples. Each program will print
+out a description of what connections need to be made on the Gertboard
+to run them.
+
+Two of the files, minirc.ama0 and LEDmeter.ino, are used for
+programming the ATmega microprocessor on the Gertboard.
