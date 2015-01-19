@@ -1,27 +1,6 @@
 //=============================================================================
 //
-//
-// Gertboard Demo
-//
-// This code is part of the Gertboard test suite
-// Pulse-Width-Modulation part
-//
-// Copyright (C) Gert Jan van Loo & Myra VanIwengen2012
-// No rights reserved
-// You may treat this program as if it was in the public domain
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAGE.
-//
+// Pulse-Width-Modulation
 //
 // Try to strike a balance between keep code simple for
 // novice programmers but still have reasonable quality code
@@ -84,16 +63,15 @@
 //
 //
 
-#include "gb_common.h"
-#include "gb_pwm.h"
+#include "common.c"
+#include "pwm.h"
 
 
 //
 // Setup the Pulse Width Modulator
 // It needs a clock and needs to be off
 //
-void setup_pwm()
-{
+void setup_pwm() {
    // Derive PWM clock direct from X-tal
    // thus any system auto-slow-down-clock-to-save-power does not effect it
    // The values below depends on the X-tal frequency!
@@ -115,8 +93,8 @@ void setup_pwm()
 // If a new value comes in before it is picked up by the chip
 // it will definitely be too fast for the motor to respond to it
 //
-void set_pwm0(int v)
-{ // make sure value is in safe range
+void set_pwm0(int v) {
+  // make sure value is in safe range
   if (v<0) v=0;
   if (v>0x400) v=0x400;
   PWM0_DATA = v;
@@ -125,13 +103,13 @@ void set_pwm0(int v)
 //
 // Force PWM value update
 // This routine makes sure the new value goes in.
-// This is done by dis-abling the PWM, write the value
+// This is done by disabling the PWM, write the value
 // and enable it again. This routine is weak as it
 // uses a delay which is tested (but not guaranteed)
 // Controls channel 0 only.
 //
-void force_pwm0(int v,int mode)
-{ int w;
+void force_pwm0(int v,int mode) {
+  int w;
   // disable
   PWM_CONTROL  = 0;
   // wait for this command to get to the PWM clock domain

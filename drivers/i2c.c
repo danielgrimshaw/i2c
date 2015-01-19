@@ -2,6 +2,7 @@
 // This is where we implement i2c.h
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -17,8 +18,23 @@ volatile uint32_t *bcm2835_bsc1 = (volatile uint32_t *)MAP_FAILED;
 volatile uint32_t *bcm2835_st	= (volatile uint32_t *)MAP_FAILED;
 static int i2c_byte_wait_us = 0;
 
-int bcm2835_init(void)
-{
+// Map 'size' bytes starting at 'off' in file 'fd' to memory.
+// Return mapped address on success, MAP_FAILED otherwise.
+// On error print message.
+static void *mapmem(const char *msg, size_t size, int fd, off_t off) {
+    void *map = mmap(NULL, size, (PROT_READ | PROT_WRITE), MAP_SHARED, fd, off);
+    if (MAP_FAILED == map)
+        fprintf(stderr, "bcm2835_init: %s mmap failed: %s\n", msg, strerror(errno));
+    return map;
+}
+
+static void unmapmem(void **pmem, size_t size) {
+    if (*pmem == MAP_FAILED) return;
+    munmap(*pmem, size);
+    *pmem = MAP_FAILED;
+}
+
+int bcm2835_init(void) {
     int memfd = -1;
     int ok = 0;
     // Open the master /dev/memory device
@@ -30,14 +46,14 @@ int bcm2835_init(void)
     // GPIO:
     bcm2835_gpio = (volatile uint32_t *)mapmem("gpio", BCM2835_BLOCK_SIZE, memfd, BCM2835_GPIO_BASE);
     if (bcm2835_gpio == MAP_FAILED) goto exit;
-    
+
     // I2C
     bcm2835_bsc0 = (volatile uint32_t *)mapmem("bsc0", BCM2835_BLOCK_SIZE, memfd, BCM2835_BSC0_BASE);
     if (bcm2835_bsc0 == MAP_FAILED) goto exit;
 
     bcm2835_bsc1 = (volatile uint32_t *)mapmem("bsc1", BCM2835_BLOCK_SIZE, memfd, BCM2835_BSC1_BASE);
     if (bcm2835_bsc1 == MAP_FAILED) goto exit;
-    
+
     // ST
     bcm2835_st = (volatile uint32_t *)mapmem("st", BCM2835_BLOCK_SIZE, memfd, BCM2835_ST_BASE);
     if (bcm2835_st == MAP_FAILED) goto exit;
@@ -109,14 +125,14 @@ void i2c_begin(void) {
 #ifdef I2C_V1
     volatile uint32_t* paddr = bcm2835_bsc0 + BCM2835_BSC_DIV/4;
     // Set the I2C/BSC0 pins to the Alt 0 function to enable I2C access on them
-    bcm2835_gpio_fsel(RPI_GPIO_P1_03, BCM2835_GPIO_FSEL_ALT0); // SDA
-    bcm2835_gpio_fsel(RPI_GPIO_P1_05, BCM2835_GPIO_FSEL_ALT0); // SCL
+    gpio_fsel(RPI_GPIO_P1_03, BCM2835_GPIO_FSEL_ALT0); // SDA
+    gpio_fsel(RPI_GPIO_P1_05, BCM2835_GPIO_FSEL_ALT0); // SCL
 #else
     volatile uint32_t* paddr = bcm2835_bsc1 + BCM2835_BSC_DIV/4;
     // Set the I2C/BSC1 pins to the Alt 0 function to enable I2C access on them
-    bcm2835_gpio_fsel(RPI_V2_GPIO_P1_03, BCM2835_GPIO_FSEL_ALT0); // SDA
-    bcm2835_gpio_fsel(RPI_V2_GPIO_P1_05, BCM2835_GPIO_FSEL_ALT0); // SCL
-#endif    
+    gpio_fsel(RPI_V2_GPIO_P1_03, BCM2835_GPIO_FSEL_ALT0); // SDA
+    gpio_fsel(RPI_V2_GPIO_P1_05, BCM2835_GPIO_FSEL_ALT0); // SCL
+#endif
 
     // Read the clock divider register
     uint16_t cdiv = peri_read(paddr);
@@ -129,12 +145,12 @@ void i2c_begin(void) {
 void i2c_end(void) {
 #ifdef I2C_V1
     // Set all the I2C/BSC0 pins back to input
-    bcm2835_gpio_fsel(RPI_GPIO_P1_03, BCM2835_GPIO_FSEL_INPT); // SDA
-    bcm2835_gpio_fsel(RPI_GPIO_P1_05, BCM2835_GPIO_FSEL_INPT); // SCL
+    gpio_fsel(RPI_GPIO_P1_03, BCM2835_GPIO_FSEL_INPT); // SDA
+    gpio_fsel(RPI_GPIO_P1_05, BCM2835_GPIO_FSEL_INPT); // SCL
 #else
     // Set all the I2C/BSC1 pins back to input
-    bcm2835_gpio_fsel(RPI_V2_GPIO_P1_03, BCM2835_GPIO_FSEL_INPT); // SDA
-    bcm2835_gpio_fsel(RPI_V2_GPIO_P1_05, BCM2835_GPIO_FSEL_INPT); // SCL
+    gpio_fsel(RPI_V2_GPIO_P1_03, BCM2835_GPIO_FSEL_INPT); // SDA
+    gpio_fsel(RPI_V2_GPIO_P1_05, BCM2835_GPIO_FSEL_INPT); // SCL
 #endif
 }
 
@@ -292,7 +308,7 @@ uint8_t i2c_read(char* buf, uint32_t len) {
 
 // Read an number of bytes from I2C sending a repeated start after writing
 // the required register. Only works if your device supports this mode
-uint8_t i2c_read_register_rs(char* regaddr, char* buf, uint32_t len) {   
+uint8_t i2c_read_register_rs(char* regaddr, char* buf, uint32_t len) {
 #ifdef I2C_V1
     volatile uint32_t* dlen    = bcm2835_bsc0 + BCM2835_BSC_DLEN/4;
     volatile uint32_t* fifo    = bcm2835_bsc0 + BCM2835_BSC_FIFO/4;
@@ -303,16 +319,16 @@ uint8_t i2c_read_register_rs(char* regaddr, char* buf, uint32_t len) {
     volatile uint32_t* fifo    = bcm2835_bsc1 + BCM2835_BSC_FIFO/4;
     volatile uint32_t* status  = bcm2835_bsc1 + BCM2835_BSC_S/4;
     volatile uint32_t* control = bcm2835_bsc1 + BCM2835_BSC_C/4;
-#endif    
-	uint32_t remaining = len;
+#endif
+    uint32_t remaining = len;
     uint32_t i = 0;
     uint8_t reason = I2C_REASON_OK;
     
     // Clear FIFO
     peri_set_bits(control, BCM2835_BSC_C_CLEAR_1 , BCM2835_BSC_C_CLEAR_1 );
     // Clear Status
-	peri_write_nb(status, BCM2835_BSC_S_CLKT | BCM2835_BSC_S_ERR | BCM2835_BSC_S_DONE);
-	// Set Data Length
+    peri_write_nb(status, BCM2835_BSC_S_CLKT | BCM2835_BSC_S_ERR | BCM2835_BSC_S_DONE);
+    // Set Data Length
     peri_write_nb(dlen, 1);
     // Enable device and start transfer
     peri_write_nb(control, BCM2835_BSC_C_I2CEN);
@@ -331,7 +347,7 @@ uint8_t i2c_read_register_rs(char* regaddr, char* buf, uint32_t len) {
     peri_write_nb(control, BCM2835_BSC_C_I2CEN | BCM2835_BSC_C_ST  | BCM2835_BSC_C_READ );
     
     // Wait for write to complete and first byte back.	
-    bcm2835_delayMicroseconds(i2c_byte_wait_us * 3);
+    delayMicroseconds(i2c_byte_wait_us * 3);
     
     // wait for transfer to complete
     while (!(peri_read_nb(status) & BCM2835_BSC_S_DONE)) {
@@ -419,7 +435,7 @@ uint8_t i2c_write_read_rs(char* cmds, uint32_t cmds_len, char* buf, uint32_t buf
     peri_write_nb(control, BCM2835_BSC_C_I2CEN | BCM2835_BSC_C_ST  | BCM2835_BSC_C_READ );
     
     // Wait for write to complete and first byte back.	
-    bcm2835_delayMicroseconds(i2c_byte_wait_us * (cmds_len + 1));
+    delayMicroseconds(i2c_byte_wait_us * (cmds_len + 1));
     
     // wait for transfer to complete
     while (!(peri_read_nb(status) & BCM2835_BSC_S_DONE)) {

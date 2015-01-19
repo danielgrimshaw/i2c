@@ -9,8 +9,8 @@
 // novice programmers but still have reasonable quality code
 //
 
-#include "gb_common.h"
-#include "gb_spi.h"
+#include "common.c"
+#include "spi.h"
 
 //
 // Set-up the SPI interface
@@ -18,8 +18,7 @@
 // Speed depends on what you talk to
 // In this case use 1MHz
 //
-void setup_spi()
-{
+void setup_spi() {
   // Want to have 1 MHz SPI clock.
   // Assume 250 Mhz system clock
   // So divide 250MHz system clock by 250 to get 1MHz
@@ -36,8 +35,8 @@ void setup_spi()
 // To understand this code you had better read the
 // datasheet of the AD chip (MCP3002)
 //
-int read_adc(int chan) // 'chan' must be 0 or 1. This is not checked!
-{ unsigned char v1,v2,rec_c;
+int read_adc(int chan) { // 'chan' must be 0 or 1. This is not checked!
+  unsigned char v1,v2,rec_c;
   int status,w;
   // Set up for single ended, MS comes out first
   v1 = 0xD0 | (chan<<5);
@@ -80,7 +79,7 @@ int read_adc(int chan) // 'chan' must be 0 or 1. This is not checked!
 // datasheet of the AD chip (MCP4802/MCP4812/MCP4822)
 //
 void write_dac(int chan, // chan must be 0 or 1, this is not checked
-                int val) // chan must be max 12 bit
+                int val) // val must be max 12 bit
 { char v1,v2,dummy;
   int status;
   val &= 0xFFF;  // force value in 12 bits
