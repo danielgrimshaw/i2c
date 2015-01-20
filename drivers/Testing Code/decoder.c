@@ -1,32 +1,9 @@
 //=============================================================================
 //
-//
-// Decoder: using the bottons as a binary number and turning on one of 8 LEDs
-//
-// main file
-//
-// This file is part of the gertboard test suite
-//
-//
-// Copyright (C) Gert Jan van Loo & Myra VanInwegen 2012
-// No rights reserved
-// You may treat this program as if it was in the public domain
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAGE.
-//
+// Decoder: using the buttons as a binary number and turning on one of 8 LEDs
 //
 
-#include "gb_common.h"
+#include "../common.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -66,8 +43,7 @@
 // as that is how the macros work
 // pin0 and pin1 are GPIO pin numbers for GP0 and GP1: on rev 1 board they
 // are just 0 and 1 but on rev 2 board are 2 and 3
-void setup_gpio(int pin0, int pin1)
-{
+void setup_gpio(int pin0, int pin1) {
    // GP23, 24, & 25 are handling the pushbuttons
    INP_GPIO(23);
    INP_GPIO(24);
@@ -102,8 +78,7 @@ static int led[] = {1<<11, 1<<10, 1 <<9, 1<<8, 1<<7, 1<<4, 1<<1, 1};
 
 // remove pulling on pins so they can be used for somnething else next time
 // gertboard is used
-void unpull_pins()
-{
+void unpull_pins() {
    // disable pull-up on GPIO 23,24&25, set pull to 0 (code for no pull)
    GPIO_PULL = 0;
    short_wait();
@@ -115,8 +90,8 @@ void unpull_pins()
    GPIO_PULLCLK0 = 0;
 } // unpull_pins
 
-int main(void)
-{ int r, d, rev, pin0, pin1;
+int main(void) {
+  int r, d, rev, pin0, pin1;
   unsigned int b, prev_b;
   char str [4];
 
@@ -146,18 +121,16 @@ int main(void)
   // first find out which rev of RPi we have
   rev = pi_revision();
   // on a rev2 p1, GPIO2 and 3 drive the pins connected to GP0 and GP1 in J2
-  if (rev == 1)
-    {
-      pin0 = 0;
-      pin1 = 1;
-    }
-  else
-    {
-      pin0 = 2;
-      pin1 = 3;
-      led[6] = 1 << 3;
-      led[7] = 1 << 2;
-    }
+  if (rev == 1) {
+    pin0 = 0;
+    pin1 = 1;
+  }
+  else {
+    pin0 = 2;
+    pin1 = 3;
+    led[6] = 1 << 3;
+    led[7] = 1 << 2;
+  }
 
    // Map the I/O sections
    setup_io();
@@ -171,16 +144,14 @@ int main(void)
    /* below we set prev_b to a 0 as it will most likely be different from
       the first number we read from the buttons (user would have to have
       all buttons pressed to get this value) */
-   prev_b = 0; 
-   
+   prev_b = 0;
+
    r = 40; // number of repeats
 
-  while (r)
-  {
+  while (r) {
     b = GPIO_IN0;
     b = (b >> 23 ) & 0x07; // keep only bits 23, 24 & 25
-    if (b^prev_b)
-    { // one or more buttons changed
+    if (b^prev_b) { // one or more buttons changed
       GPIO_CLR0 = led[prev_b];  // turn off LED for prev button setup
       GPIO_SET0 = led[b];  // turn on LED for this setup
       prev_b = b;
@@ -190,7 +161,7 @@ int main(void)
 
   // turn off all LEDs
   for (b = 0; b < 8; b++)
-    GPIO_CLR0 = led[b]; 
+    GPIO_CLR0 = led[b];
   // disable pull up on pins & unmap gpio
   unpull_pins();
   restore_io();

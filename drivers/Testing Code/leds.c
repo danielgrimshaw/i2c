@@ -1,40 +1,16 @@
 //
-//
-// Gertboard test suite
-//
 // These program walks the LEDs
-//
-//
-// This file is part of gertboard test suite.
-//
-//
-// Copyright (C) Gert Jan van Loo & Myra VanInwegen 2012
-// No rights reserved
-// You may treat this program as if it was in the public domain
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAGE.
-//
 //
 // Try to strike a balance between keep code simple for
 // novice programmers but still have reasonable quality code
 //
 
-#include "gb_common.h"
+#include "../common.h"
 
 // Use defines for the LEDS. In the GPIO code, GPIO pins n is controlled
 // by bit n. The idea is here is that for example L1 will refer
-// to the first LED, which is controlled by GPIO25 (because we will 
-// put a strap between GP25 anb B1). This gives a more intuitive 
+// to the first LED, which is controlled by GPIO25 (because we will
+// put a strap between GP25 anb B1). This gives a more intuitive
 // name to use for the LEDs in the patterns.
 //
 // For novice users: don't worry about the complexity
@@ -82,8 +58,7 @@ static int ALL_LEDS;
 
 // pin21 is set to the GPIO pin number driving GP21: GPIO21 on rev1 Pi,
 // GPIO27 on rev2 Pi
-void setup_gpio(int pin21)
-{
+void setup_gpio(int pin21) {
   INP_GPIO(7);  OUT_GPIO(7);
   INP_GPIO(8);  OUT_GPIO(8);
   INP_GPIO(9);  OUT_GPIO(9);
@@ -102,7 +77,7 @@ void setup_gpio(int pin21)
 
 //
 // Define the various patterns.
-// The idea here is that each number in the arrays below specifies 
+// The idea here is that each number in the arrays below specifies
 // a collection of LEDs to turn on. The last element in each array is
 // -1 so we can run through the patter with a a loop and detect when
 // we are at the last item in the pattern. pattern0 and pattern1
@@ -111,12 +86,12 @@ void setup_gpio(int pin21)
 // a bit, we | (or) them together to turn on more than one LED as a time.
 //
 
-static int pattern0_rev1[] = 
+static int pattern0_rev1[] =
   {L1, L2, L3, L4, L5_1, L6, L7, L8, L9, L10, L11, L12, -1 };
-static int pattern1_rev1[] = 
-  {L1, L2, L3, L4, L5_1, L6, L7, L8, L9, L10, L11, L12, 
+static int pattern1_rev1[] =
+  {L1, L2, L3, L4, L5_1, L6, L7, L8, L9, L10, L11, L12,
    L12, L11, L10, L9, L8, L7, L6, L5_1, L4, L3, L2, L1, -1 };
-static int pattern2_rev1[] = 
+static int pattern2_rev1[] =
   {0x0,
    L1,
    L1|L2,
@@ -182,8 +157,7 @@ static int *pattern0, *pattern1, *pattern2;
 static int *pattern;  // current pattern
 static int step;  // which pattern element we are showing
 
-void show_LEDs(int value)
-{
+void show_LEDs(int value) {
   // first turn off all LEDs - GPIO_CLR0 selects which output pins
   // will be set up 0
   GPIO_CLR0 = ALL_LEDS;
@@ -192,22 +166,19 @@ void show_LEDs(int value)
   GPIO_SET0 = value;
 } // set_pattern
 
-void leds_off(void)
-{
+void leds_off(void) {
   GPIO_CLR0 = ALL_LEDS;
 }
 
 //
 // Start anew with one of the available patterns
 //
-void start_new_pattern(int p)
-{
-   switch (p)
-   {
-   case 0 : pattern = pattern0; break;
-   case 1 : pattern = pattern1; break;
-   case 2 : pattern = pattern2; break;
-   default: return;
+void start_new_pattern(int p) {
+   switch (p) {
+     case 0 : pattern = pattern0; break;
+     case 1 : pattern = pattern1; break;
+     case 2 : pattern = pattern2; break;
+     default: return;
    }
 } // start_new_pattern
 
@@ -216,8 +187,7 @@ void start_new_pattern(int p)
 // return 1 on last pattern
 // return 0 on all others
 //
-int led_step()
-{
+int led_step() {
    step++;
    show_LEDs(pattern[step]);
    return (pattern[step+1] == -1) ? 1 : 0; // are we at last value?
@@ -226,8 +196,8 @@ int led_step()
 //
 // Quick play all patterns
 //
-int main(void)
-{ int p, r, last, rev, pin21;
+int main(void) {
+  int p, r, last, rev, pin21;
 
   printf ("These are the connections for the LEDs test:\n");
   printf ("jumpers in every out location (U3-out-B1, U3-out-B2, etc)\n");
@@ -251,26 +221,23 @@ int main(void)
   // first find out which rev of RPi we have
   rev = pi_revision();
   // on a rev2 p1, GPIO27 drives the pin connected to GP21 in J2
-  if (rev == 1)
-    { // GP21 on Gertboard is controller by GPIO21
-      pin21 = 21;
-      ALL_LEDS = (L1|L2|L3|L4|L5_1|L6|L7|L8|L9|L10|L11|L12);
-      pattern0 = pattern0_rev1;
-      pattern1 = pattern1_rev1;
-      pattern2 = pattern2_rev1;
-    }
-  else
-    { // GP21 on Gertboard is controller by GPIO27
-      pin21 = 27;
-      ALL_LEDS = (L1|L2|L3|L4|L5_2|L6|L7|L8|L9|L10|L11|L12);
-      pattern0 = pattern0_rev2;
-      pattern1 = pattern1_rev2;
-      pattern2 = pattern2_rev2;
-    }
+  if (rev == 1){ // GP21 on Gertboard is controller by GPIO21
+    pin21 = 21;
+    ALL_LEDS = (L1|L2|L3|L4|L5_1|L6|L7|L8|L9|L10|L11|L12);
+    pattern0 = pattern0_rev1;
+    pattern1 = pattern1_rev1;
+    pattern2 = pattern2_rev1;
+  } else { // GP21 on Gertboard is controller by GPIO27
+    pin21 = 27;
+    ALL_LEDS = (L1|L2|L3|L4|L5_2|L6|L7|L8|L9|L10|L11|L12);
+    pattern0 = pattern0_rev2;
+    pattern1 = pattern1_rev2;
+    pattern2 = pattern2_rev2;
+  }
 
   // set the current pattern to pattern 0
   pattern = pattern0;
-  step = 0; 
+  step = 0;
 
   // Map the I/O sections
   setup_io();
@@ -278,12 +245,10 @@ int main(void)
   // Set 12 GPIO pins to output mode
   setup_gpio(pin21);
 
-  for (p=0; p<3; p++)
-  {
+  for (p=0; p<3; p++) {
     // run pattern several times
     start_new_pattern(p);
-    for (r=0; r<2; r++)
-    {    
+    for (r=0; r<2; r++) {
       step = -1; // we will incrment this before showing any patterns
       do {
         last = led_step();

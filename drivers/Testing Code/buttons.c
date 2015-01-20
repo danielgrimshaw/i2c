@@ -3,30 +3,9 @@
 //
 // Buttons_test
 //
-// main file
-//
-// This file is part of the gertboard test suite
-//
-//
-// Copyright (C) Gert Jan van Loo & Myra VanInwegen 2012
-// No rights reserved
-// You may treat this program as if it was in the public domain
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAGE.
-//
 
 
-#include "gb_common.h"
+#include "../common.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -64,8 +43,7 @@
 //
 // Always call INP_GPIO(x) first
 // as that is how the macros work
-void setup_gpio()
-{
+void setup_gpio() {
    // for this test we are only using GP23, 24, & 25
    INP_GPIO(23);
    INP_GPIO(24);
@@ -84,8 +62,7 @@ void setup_gpio()
 
 // remove pulling on pins so they can be used for somnething else next time
 // gertboard is used
-void unpull_pins()
-{
+void unpull_pins() {
    // disable pull-up on GPIO 23,24&25, set pull to 0 (code for no pull)
    GPIO_PULL = 0;
    short_wait();
@@ -97,8 +74,8 @@ void unpull_pins()
    GPIO_PULLCLK0 = 0;
 } // unpull_pins
 
-int main(void)
-{ int r,d;
+int main(void) {
+  int r,d;
   unsigned int b,prev_b;
   char str [4];
 

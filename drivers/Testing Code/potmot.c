@@ -1,36 +1,14 @@
 //=============================================================================
 //
-//
-// Gertboard tests
-//
-// This code is part of the Gertboard test suite
-// motor control part
-//
-//
-// Copyright (C) Gert Jan van Loo & Myra VanInwegen 2012
-// No rights reserved
-// You may treat this program as if it was in the public domain
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAGE.
-//
+// Motor Control Test 2
 //
 // Try to strike a balance between keep code simple for
 // novice programmers but still have reasonable quality code
 //
 
-#include "gb_common.h"
-#include "gb_spi.h"
-#include "gb_pwm.h"
+#include "../common.h"
+#include "../spi.h"
+#include "../pwm.h"
 
 // potentiometer - motor test GPIO mapping:
 //         Function            Mode
@@ -53,14 +31,13 @@
 // GPIO24= unused
 // GPIO25= unused
 
-void setup_gpio(void)
-{
+void setup_gpio(void) {
   // setup GPIO 8 to 11 for SPI bus use
   INP_GPIO(8);  SET_GPIO_ALT(8,0);
   INP_GPIO(9);  SET_GPIO_ALT(9,0);
   INP_GPIO(10); SET_GPIO_ALT(10,0);
   INP_GPIO(11); SET_GPIO_ALT(11,0);
-  // GPIO 17 is used for the MOTB input and is just high or low 
+  // GPIO 17 is used for the MOTB input and is just high or low
   // (depending on potentiometer input)
   INP_GPIO(17);  OUT_GPIO(17);
   // GPIO 18 is set up for using the pulse width modulator
@@ -68,8 +45,8 @@ void setup_gpio(void)
 } // setup_gpio
 
 
-void main()
-{ int r, s, v, fwd;
+void main() {
+  int r, s, v, fwd;
 
   printf ("These are the connections for the potentiometer - motor test:\n");
   printf ("jumper connecting GP11 to SCLK\n");
@@ -109,26 +86,23 @@ void main()
   // we start out set up for going "backwards"
   fwd = 0;
 
-  for (r=0; r<1200000; r++)
-  {
+  for (r=0; r<1200000; r++) {
     v= read_adc(0);
-    if (v <= 511)
-      { 
+    if (v <= 511) {
       // map 0 to 511 to going "backwards" -- 0 (one end of your pot) means
-      // go backwards fast (v sent to PWM is near 1023), as we increase 
+      // go backwards fast (v sent to PWM is near 1023), as we increase
       // towards 510, motor speed slows, and at 511 (middle) motor is stopped
       // (v sent to PWM is near 0)
       v = 1023-(v * 2);
       // we want v near 0 to mean motor slow/stopped and v near 1023 to
       // mean motor going "backwards" fast
-      if (fwd)
-      { // going in the wrong direction
+      if (fwd) { // going in the wrong direction
         // reverse polarity
         GPIO_SET0 = 1<<17;
 	// We set PWM0_REVPOLAR flag below because normally a high value for
 	// v means high cycle which means signal high most of the time.
 	// But with motor input B high, this would mean that motor is slow,
-        // which is not what we want. Setting PWM0_REVPOLAR flips the 
+        // which is not what we want. Setting PWM0_REVPOLAR flips the
 	// polarity so that a high v means that the signal is low most
 	// of the time, which gives us a high speed.
         force_pwm0(v,PWM0_ENABLE|PWM0_REVPOLAR);
@@ -137,23 +111,21 @@ void main()
       else
         set_pwm0(v);
     }
-    else
-    {   
+    else {
       // map A/D value of 512 to 1023 to going "forwards" -- at 512 (middle)
       // motor is stopped (v sent to PWM is near 0), as we increase A/D value
       // motor speed increases (in the "forwards" direction), and when A/D
       // value is at 1023 (at the "other" end of your pot), we send PWM a
       // value near 1023 so it goes very fast "forwards".
       v = (v-512)*2;
-      if (!fwd)
-      { // going in the wrong direction
+      if (!fwd) { // going in the wrong direction
         // reverse polarity
         GPIO_CLR0 = 1<<17;
-	// Now normal polarity works for us: 
+	// Now normal polarity works for us:
 	// With a low v sent to PWM we get a low duty cycle, power
-        // is off most of the time, and since motor b input is low this 
+        // is off most of the time, and since motor b input is low this
 	// means a slow motor; when v goes to near 1023 we get a high duty
-	// cycle which means power on most of the time which results in 
+	// cycle which means power on most of the time which results in
 	// motor going quickly
         force_pwm0(v,PWM0_ENABLE);
         fwd = 1;

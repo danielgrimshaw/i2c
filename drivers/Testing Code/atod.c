@@ -1,34 +1,14 @@
 //
-// Gertboard Demo
-//
 // SPI (ADC/DAC) control code
 //
 // This code is part of the Gertboard test suite
-//
-//
-// Copyright (C) Gert Jan van Loo & Myra VanInwegen 2012
-// No rights reserved
-// You may treat this program as if it was in the public domain
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAGE.
-//
 //
 // Try to strike a balance between keep code simple for
 // novice programmers but still have reasonable quality code
 //
 
-#include "gb_common.h"
-#include "gb_spi.h"
+#include "../common.h"
+#include "../spi.h"
 
 // Set GPIO pins to the right mode
 // DEMO GPIO mapping:
@@ -53,8 +33,7 @@
 //
 
 // For A to D we only need the SPI bus and SPI chip select A
-void setup_gpio()
-{
+void setup_gpio() {
    INP_GPIO(8);  SET_GPIO_ALT(8,0);
    INP_GPIO(9);  SET_GPIO_ALT(9,0);
    INP_GPIO(10); SET_GPIO_ALT(10,0);
@@ -63,10 +42,10 @@ void setup_gpio()
 
 
 //
-//  Read ADC input 0 and show as horizontal bar
+// Read ADC input 0 and show as horizontal bar
 //
-void main(void)
-{ int r, v, s, i, chan;
+void main(void) {
+  int r, v, s, i, chan;
 
   do {
     printf ("Which channel do you want to test? Type 0 or 1.\n");
@@ -97,12 +76,11 @@ void main(void)
   // Setup SPI bus
   setup_spi();
 
-  // The value returned by the A to D can jump around quite a bit, so 
+  // The value returned by the A to D can jump around quite a bit, so
   // simply printing out the value isn't very useful. The bar graph
   // is better because this hides the noise in the signal.
 
-  for (r=0; r<100000; r++)
-  {
+  for (r=0; r<100000; r++) {
     v= read_adc(chan);
     // V should be in range 0-1023
     // map to 0-63
