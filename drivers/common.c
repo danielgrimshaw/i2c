@@ -87,10 +87,10 @@ void restore_io();
 // This is a software loop to wait
 // a short while.
 //
-void short_wait()
-{ int w;
-  for (w=0; w<100; w++)
-  { w++;
+void short_wait() {
+  int w;
+  for (w=0; w<100; w++) {
+    w++;
     w--;
   }
 } // short_wait
@@ -99,11 +99,11 @@ void short_wait()
 //
 // Simple SW wait loop
 //
-void long_wait(int v)
-{ int w;
+void long_wait(int v) {
+  int w;
   while (v--)
-    for (w=-800000; w<800000; w++)
-    { w++;
+    for (w=-800000; w<800000; w++) {
+      w++;
       w--;
     }
 } // long_wait
@@ -115,8 +115,8 @@ void long_wait(int v)
 // It it also the part of the code which makes that
 // you have to use 'sudo' to run this program.
 //
-void setup_io()
-{  unsigned long extra;
+void setup_io() {
+   unsigned long extra;
 
    /* open /dev/mem */
    if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0) {
@@ -271,8 +271,7 @@ void setup_io()
 //
 // Undo what we did above
 //
-void restore_io()
-{
+void restore_io() {
   munmap(uart_map,BLOCK_SIZE);
   munmap(spi0_map,BLOCK_SIZE);
   munmap(pwm_map,BLOCK_SIZE);
@@ -292,8 +291,8 @@ void restore_io()
 // i is integer we want to show as a binary number
 // we only look at the nbits least significant bits of i and we assume that 
 // s is at least nbits+1 characters long
-void make_binary_string(int nbits, int i, char *s)
-{ char *p;
+void make_binary_string(int nbits, int i, char *s) {
+  char *p;
   int bit;
 
   p = s;
@@ -307,8 +306,7 @@ void make_binary_string(int nbits, int i, char *s)
 // Using the file '/proc/cpuinfo' for that.
 // returns 1 or 2 for boards rev 1 or 2, and 0 if it wasn't able to tell
 //
-int pi_revision()
-{
+int pi_revision() {
    FILE *fp;
    int  revision, match, number;
    char text[128]; // holds one line of file
@@ -316,21 +314,20 @@ int pi_revision()
    revision = 0;
    // Open the file with the CPU info
    fp = fopen("/proc/cpuinfo","r");
-   if (fp)
-   { // Find the line which starts 'Revision'
-     while (fgets(text, 128, fp)) // get one line of text from file
-     {
-       if (!strncmp(text,"Revision",8)) // strncmp returns 0 if string matches
-       {  // Get the revision number from the text
+   if (fp) {
+     // Find the line which starts 'Revision'
+     while (fgets(text, 128, fp)) { // get one line of text from file
+       if (!strncmp(text,"Revision",8)) { // strncmp returns 0 if string matches
+         // Get the revision number from the text
 	 match = sscanf(text,"%*s : %0X",&number); // rev num is after the :
-	 if (match == 1)
-	   { // Yes, we have a revision number
-	     if (number >= 4)
-	       revision = 2;
-	     else
-	       revision = 1;
+	 if (match == 1) {
+	   // Yes, we have a revision number
+	   if (number >= 4)
+	     revision = 2;
+	   else
+	     revision = 1;
 	   } // have number
-          break; // no use in reading more lines, so break out of the while
+         break; // no use in reading more lines, so break out of the while
        } // have revision text
      } // get line from file
      fclose(fp);

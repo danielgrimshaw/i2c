@@ -1,15 +1,6 @@
 // i2c.c
 // This is where we implement i2c.h
 
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <string.h>
-#include <time.h>
-#include <unistd.h>
 #include "i2c.h"
 
 volatile uint32_t *bcm2835_gpio = (volatile uint32_t *)MAP_FAILED;

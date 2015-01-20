@@ -3,6 +3,16 @@
 // These functions let you use I2C (The Broadcom Serial Control bus with the Philips
 // I2C bus/interface version 2.1 January 2000.) to interface with an external I2C device.
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <string.h>
+#include <time.h>
+#include <unistd.h>
+
 // Macros
 // Speed of the core clock core_clk
 #define BCM2835_CORE_CLK_HZ				250000000	// 250 MHz
@@ -223,10 +233,10 @@ typedef enum {
 // Clock divided is based on nominal base clock rate of 250MHz
 typedef enum
 {
-    BCM2835_I2C_CLOCK_DIVIDER_2500   = 2500,      // 2500 = 10us = 100 kHz
-    BCM2835_I2C_CLOCK_DIVIDER_626    = 626,       // 626 = 2.504us = 399.3610 kHz
-    BCM2835_I2C_CLOCK_DIVIDER_150    = 150,       // 150 = 60ns = 1.666 MHz (default at reset)
-    BCM2835_I2C_CLOCK_DIVIDER_148    = 148,       // 148 = 59ns = 1.689 MHz
+    I2C_CLOCK_DIVIDER_2500   = 2500,      // 2500 = 10us = 100 kHz
+    I2C_CLOCK_DIVIDER_626    = 626,       // 626 = 2.504us = 399.3610 kHz
+    I2C_CLOCK_DIVIDER_150    = 150,       // 150 = 60ns = 1.666 MHz (default at reset)
+    I2C_CLOCK_DIVIDER_148    = 148,       // 148 = 59ns = 1.689 MHz
 } I2CClockDivider;
 
 // Initialise the library by opening /dev/mem and getting pointers to the 
@@ -349,8 +359,8 @@ extern uint8_t i2c_write(const char * buf, uint32_t len);
 // (as previously set by i2c_setSlaveAddress)
 //
 // Parameters:
-// buf Buffer of bytes to receive.
-// len Number of bytes in the buf buffer, and the number of bytes to received.
+// buf		Buffer of bytes to receive.
+// len		Number of bytes in the buf buffer, and the number of bytes to receive.
 //
 // return reason (see I2CReasonCodes)
 extern uint8_t i2c_read(char* buf, uint32_t len);
