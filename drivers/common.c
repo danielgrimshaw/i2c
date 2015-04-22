@@ -11,7 +11,7 @@
 //    This is likely to change and in that case the Linux
 //    audio/PWM driver must be disabled.
 //
-// This file contains code use by all the test programs for individual 
+// This file contains code use by all the test programs for individual
 // capabilities.
 
 #include "common.h"
@@ -285,11 +285,11 @@ void restore_io() {
   free(clk_mem_orig);
 } // restore_io
 
-// simple routine to convert the last several bits of an integer to a string 
+// simple routine to convert the last several bits of an integer to a string
 // showing its binary value
 // nbits is the number of bits in i to look at
 // i is integer we want to show as a binary number
-// we only look at the nbits least significant bits of i and we assume that 
+// we only look at the nbits least significant bits of i and we assume that
 // s is at least nbits+1 characters long
 void make_binary_string(int nbits, int i, char *s) {
   char *p;

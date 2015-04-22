@@ -41,7 +41,7 @@
 //   =============================================== (B is always low)
 // The motor is driven (gets power) when A is high, so a PWM signal with
 // A high for most of the time will make the motor go fast, and a PWM
-// signal with A low for most for the time will make the mnotor turn
+// signal with A low for most for the time will make the motor turn
 // slowly.
 //
 //
@@ -53,10 +53,10 @@
 //   ---------------------------------------------- (B is always high)
 // B
 //
-// Here the situation is reversed: the motor is driven (but in the 
+// Here the situation is reversed: the motor is driven (but in the
 // opposite direction) when A is low. So a PWM signal with
 // A low for most of the time will make the motor go fast, and a PWM
-// signal with A high for most for the time will make the mnotor turn
+// signal with A high for most for the time will make the motor turn
 // slowly.
 //
 // Off is both A and B low (or high, but I use low)
@@ -78,7 +78,7 @@ void setup_pwm() {
    PWMCLK_DIV  = 0x5A000000 | (32<<12); // set pwm div to 32 (19.2/3 = 600KHz)
    PWMCLK_CNTL = 0x5A000011; // Source=osc and enable
 
-   // Make sure PWM is off 
+   // Make sure PWM is off
    PWM_CONTROL = 0;  short_wait();
 
    // I use 1024 steps for the PWM
@@ -113,7 +113,7 @@ void force_pwm0(int v,int mode) {
   // disable
   PWM_CONTROL  = 0;
   // wait for this command to get to the PWM clock domain
-  // that depends on PWN clock speed
+  // that depends on PWM clock speed
   // unfortunately there is no way to know when this has happened :-(
   short_wait();
   // make sure value is in safe range

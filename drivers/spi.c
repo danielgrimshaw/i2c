@@ -67,8 +67,8 @@ int read_adc(int chan) { // 'chan' must be 0 or 1. This is not checked!
   // Combine the 8-bit and 2 bit values into an 10-bit integer
   // NOT!!!  return ((v1<<8)|v2)&0x3FF;
   // I have checked the result and it returns 3 bits in the MS byte not 2!!
-  // So I might have my SPI clock/data pahse wrong.
-  // For now its easier to dadpt the results (running out of time)
+  // So I might have my SPI clock/data phase wrong.
+  // For now its easier to adapt the results (running out of time)
   return ( (v1<<7) | (v2>>1) ) & 0x3FF;
 } // read_adc
 
